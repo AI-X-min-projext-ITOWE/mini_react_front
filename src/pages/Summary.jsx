@@ -1,11 +1,30 @@
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 import React, { useState } from 'react';
 import upload from '../assets/img/upload.png'
+import audio from '../assets/img/audio.png'
+
+const sparkleAnimation = keyframes`
+    0% {
+    border-color: #5E17EB;
+  }
+  25% {
+    border-color: #720455;
+  }
+  50% {
+    border-color: #910A67;
+  }
+  75% {
+    border-color: #720455;
+  }
+  100% {
+    border-color: #5E17EB;
+  }
+`;
 
 const Main = styled.div`
     width: 100%;
     min-width: 1600px;
-    height: 1200px;
+    height: 100%;
     min-height: 100vh;
     background-color: #0f1429;
     display: flex;
@@ -141,9 +160,39 @@ const Main = styled.div`
         display: flex;
         gap: 8px;
     }
+    #sum-audiobox{
+        width: 140px;
+        height: 56px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        background-color: #151C36;
+        border: 2px solid transparent;
+        animation: ${sparkleAnimation} 1.5s infinite; /* 애니메이션 적용 */
+    }
+    #sum-audiocolor{
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, #5E17EB 0%, #720455 75%, #910A67 100%);
+        border-radius: 999px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #sum-audiotext{
+        color: #FFFFFF;
+    }
+    #sum-img{
+        width: 36px;
+        height: 36px;
+    }
     
     input[type="checkbox"] {
         transform: scale(1.5);
+    }
+    #save-component{
+        font-family: TheJamsil3Regular;
     }
 `
 export function SummaryComponent(){
@@ -158,6 +207,12 @@ export function SummaryComponent(){
                 <div className="sum-titlebar">
                     요약본
                 </div>
+            </div>
+            <div id="sum-audiobox">
+                <div id="sum-audiocolor">
+                    <img id="sum-img" src={audio} alt="audio_icon"></img>
+                </div>
+                <div id="sum-audiotext">음성 듣기</div>
             </div>
         </div>
     )
