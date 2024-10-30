@@ -1,5 +1,3 @@
-
-
 import Header from './components/Header'
 import MainPage from './pages/MainPage';
 import MyPage from './pages/MyPage';

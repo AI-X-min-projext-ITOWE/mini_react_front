@@ -24,26 +24,42 @@ const NavItem = styled.div`
 
 
   &:hover {
-    text-decoration: underline;
+    font-weight: bold;
+
   }
+
+  &.jello-horizontal {
+    animation: jello-horizontal 0.9s both;
+  }
+
 `;
 
 
-
-
 function Header() {
+
+    const handleAnimation = (e) => {
+      // 클릭된 요소에 애니메이션 클래스를 추가
+      e.target.classList.add('jello-horizontal');
+
+      // 애니메이션이 끝나면 클래스를 제거하여 다시 사용할 수 있도록
+      e.target.addEventListener('animationend', () => {
+        e.target.classList.remove('jello-horizontal');
+      }, { once: true });
+    };
+
+
 
   return (
     
     <Main >
         <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
-          <NavItem>메인페이지</NavItem>
+          <NavItem onClick={handleAnimation}>메인페이지</NavItem>
         </Link>
         <Link to="/summary" style={{ textDecoration: 'none', color: 'white' }}>
-          <NavItem>요약하기</NavItem>
+          <NavItem onClick={handleAnimation}>요약하기</NavItem>
         </Link>
         <Link to="/mypage" style={{ textDecoration: 'none', color: 'white' }}>
-          <NavItem>마이페이지</NavItem>
+          <NavItem onClick={handleAnimation}>마이페이지</NavItem>
         </Link>
     </Main>
   );
