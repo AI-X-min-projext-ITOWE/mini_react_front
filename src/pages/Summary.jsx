@@ -8,11 +8,11 @@ const Main = styled.div`
     background-color: #0f1429;
 `
 
-export default function MainPage(){
+export default function Summary(){
 
     return(
         <Main>
-             <div>여기는 메인 페이지입니다.</div>;
+             <div>여기는 요약 페이지입니다.</div>;
         </Main>
     )
 }

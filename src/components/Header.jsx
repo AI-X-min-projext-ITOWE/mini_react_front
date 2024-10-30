@@ -1,16 +1,42 @@
-import styled from "styled-components"
+// src/components/Header.jsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 const Main = styled.div`
-    width: 100%;
-    height: 60px;
-    background: linear-gradient(135deg, #5E17EB 0%, #720455 75%, #910A67 100%);
-`
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(135deg, #5E17EB 0%, #720455 75%, #910A67 100%);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+`;
 
-export default function MainPage(){
+const NavItem = styled.h5`
+  margin: 0 15px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
-    return(
-        <Main>
-
-        </Main>
-    )
+function Header() {
+  return (
+    <Main>
+      <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
+        <NavItem>메인페이지</NavItem>
+      </Link>
+      <Link to="/summary" style={{ textDecoration: 'none', color: 'white' }}>
+        <NavItem>요약하기</NavItem>
+      </Link>
+      <Link to="/mypage" style={{ textDecoration: 'none', color: 'white' }}>
+        <NavItem>마이페이지</NavItem>
+      </Link>
+    </Main>
+  );
 }
+
+export default Header;
