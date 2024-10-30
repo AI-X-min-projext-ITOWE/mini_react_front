@@ -4,20 +4,24 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Main = styled.div`
+  position: fixed;
   width: 100%;
   height: 60px;
   background: linear-gradient(135deg, #5E17EB 0%, #720455 75%, #910A67 100%);
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  justify-content: center; 
+ 
 `;
 
-const NavItem = styled.h5`
+const NavItem = styled.div`
   margin: 0 15px;
   color: white;
-  font-size: 16px;
+  font-size: 13px;
   cursor: pointer;
-  
+  font-family: sans-serif; /* 지정된 폰트 적용 */
+
+
   &:hover {
     text-decoration: underline;
   }
