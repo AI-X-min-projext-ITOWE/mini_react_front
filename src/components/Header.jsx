@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
+
 const Main = styled.div`
   position: fixed;
   width: 100%;
@@ -11,7 +12,7 @@ const Main = styled.div`
   display: flex;
   align-items: center;
   justify-content: center; 
- 
+  z-index: 1;
 `;
 
 const NavItem = styled.div`
@@ -27,18 +28,23 @@ const NavItem = styled.div`
   }
 `;
 
+
+
+
 function Header() {
+
   return (
-    <Main>
-      <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
-        <NavItem>메인페이지</NavItem>
-      </Link>
-      <Link to="/summary" style={{ textDecoration: 'none', color: 'white' }}>
-        <NavItem>요약하기</NavItem>
-      </Link>
-      <Link to="/mypage" style={{ textDecoration: 'none', color: 'white' }}>
-        <NavItem>마이페이지</NavItem>
-      </Link>
+    
+    <Main >
+        <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
+          <NavItem>메인페이지</NavItem>
+        </Link>
+        <Link to="/summary" style={{ textDecoration: 'none', color: 'white' }}>
+          <NavItem>요약하기</NavItem>
+        </Link>
+        <Link to="/mypage" style={{ textDecoration: 'none', color: 'white' }}>
+          <NavItem>마이페이지</NavItem>
+        </Link>
     </Main>
   );
 }

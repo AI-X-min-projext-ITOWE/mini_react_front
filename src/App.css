@@ -1,12 +1,3 @@
 * {
   box-sizing: border-box;
 }
-
-@font-face {
-  font-family: 'Jamsil';
-  src: url('./assets/fonts/Jamsil_Bold.ttf') format('ttf'),
-       url('./assets/fonts/Jamsil_Light.ttf') format('ttf'),
-       url('./assets/fonts/Jamsil_Medium.ttf') format('ttf');
-  font-weight: normal;
-  font-style: normal;
-}
