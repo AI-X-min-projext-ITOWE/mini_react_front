@@ -3,6 +3,7 @@ import MainPage from './pages/MainPage';
 import Mypage from './pages/Mypage';
 import Summary from './pages/Summary';
 
+import './reset.css';
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 
