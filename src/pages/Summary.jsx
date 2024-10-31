@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components"
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import upload from '../assets/img/summary/upload.png'
 import audioImg from '../assets/img/summary/audio.png'
 import right from '../assets/img/summary/right.png'
@@ -244,7 +244,7 @@ export default function Summary(){
     const [showSummaryComponent, setShowSummaryComponent] = useState(false);
     const [showSaveComponent, setShowSaveComponent] = useState(false);
     const [title, setTitle] = useState("");
-    const [selectedFile, setSelectedFile] = useState(null); // 선택된 파일 상태 추가
+    const [selectedFile, setSelectedFile] = useState(null);
     const [summaryData, setSummaryData] = useState({ translation: "", summary: "", audio: "" });
     const [ isSummary, setIsSummary ] = useState(false);
     const [ isSpeech, setIsSpeech ] = useState(false);
@@ -287,13 +287,13 @@ export default function Summary(){
 
             const data = await response.json();
 
-            const audioBase64 = data.result;
+            const audioBase64 = data.result[0];
             const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
             const audioElement = new Audio(audioSrc);
 
             setSummaryData({
-                translation: data.result,
-                summary: data.summary,
+                translation: data.result[1],
+                summary: data.result[1],
                 audio: audioElement,
             });
     
