@@ -275,18 +275,19 @@ export function SummaryComponent({ translation, summary, audioUrl }) {
         </div>
     );
 }
-
-export default function Summary(){
+  
+  export default function Summary(){
     const [showSummaryComponent, setShowSummaryComponent] = useState(false);
     const [showSaveComponent, setShowSaveComponent] = useState(false);
     const [title, setTitle] = useState("");
-    const [inputText, setInputText] = useState("");
+    const [inputText, setInputText] = useState("");  // sample의 변경 사항
     const [selectedFile, setSelectedFile] = useState(null);
     const [summaryData, setSummaryData] = useState({ translation: "", summary: "", audio: "" });
     const [ isSummary, setIsSummary ] = useState(false);
     const [ isSpeech, setIsSpeech ] = useState(false);
     const [ fromLang, setFromLang ] = useState("0");
     const [ toLang, setToLang ] = useState("0");
+
 
     //api 서버 url
     const API_URL = process.env.REACT_APP_API_URL;
@@ -320,12 +321,12 @@ export default function Summary(){
                 const formData = new FormData();
                 formData.append("file", selectedFile);
     
-                response = await fetch(`http://127.0.0.1:8000/images?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
+                response = await fetch(`${API_URL}:8000/images?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
                     body: formData,
                 });
             } else if (hasText) {
-                response = await fetch(`http://127.0.0.1:8000/text?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
+                response = await fetch(`${API_URL}:8000/text?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -341,10 +342,11 @@ export default function Summary(){
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
     
-            const data = await response.json();
-            const audioBase64 = data.result[0];
-            const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
-            const audioElement = new Audio(audioSrc);
+        const data = await response.json();
+        const audioBase64 = data.result[0];  // main 브랜치의 변경 사항 유지
+        const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
+        const audioElement = new Audio(audioSrc);
+  
     
             setSummaryData({
                 translation: data.result[1],
