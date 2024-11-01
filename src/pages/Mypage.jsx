@@ -147,7 +147,7 @@ export default function MyPage() {
                     {currentItems.map((item, index) => (
                         <Item key={item.date}>
                             <Link to={`/mypage/item/${index}`}>
-                                <div>{index + 1 + indexOfFirstItem}. 제목: {item.title || "제목 없음"}</div>
+                                <div>{index + 1 + indexOfFirstItem}. {item.title || "제목 없음"}</div>
                                 <div>{new Date(item.date).toLocaleDateString()}</div>
                             </Link>
                         </Item>
