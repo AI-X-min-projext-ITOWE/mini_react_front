@@ -11,7 +11,7 @@ const Main = styled.div`
     justify-content: center;
     font-family: TheJamsil3Regular;
     
-    #myp-container{
+    #myp-container {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -51,7 +51,7 @@ const RecordText = styled(Link)`
     text-decoration: none;
 
     &:hover {
-        color: #7b5bff; /* Hover 시 색상 변경 */
+        color: #7b5bff;
     }
 `;
 
@@ -71,6 +71,7 @@ const Content = styled.div`
 const Item = styled.div`
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 20px 0;
     font-size: 18px;
     width: 100%;
@@ -80,11 +81,11 @@ const Item = styled.div`
         border-bottom: none;
     }
     a {
+        display: flex;
+        justify-content: space-between;
         text-decoration: none;
         color: inherit;
         width: 100%;
-        display: flex;
-        justify-content: space-between;
     }
 `;
 
@@ -111,26 +112,14 @@ const PageButton = styled.button`
     }
 `;
 
-function getCurrentDate() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}.${month}.${day}`;
-}
-
 export default function MyPage() {
     const [items, setItems] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
     useEffect(() => {
-        const initialItems = Array.from({ length: 20 }, (_, index) => ({
-            id: index + 1,
-            name: `(저장한 이름) ${index + 1}`,
-            date: getCurrentDate()
-        })).reverse();
-        setItems(initialItems);
+        const savedItems = JSON.parse(localStorage.getItem('savedSummaries')) || [];
+        setItems(savedItems);
     }, []);
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -150,29 +139,29 @@ export default function MyPage() {
     return (
         <Main>
             <div id="myp-container">
-            <Sidebar>
-                <Title>마이페이지</Title>
-                <RecordText to="/mypage">나의 기록</RecordText> {/* 링크 추가 */}
-            </Sidebar>
-            <Content>
-                {currentItems.map((item, index) => (
-                    <Item key={item.id}>
-                        <Link to={`/mypage/item/${item.id}`}>
-                            <div>{index + 1 + indexOfFirstItem}. {item.name}</div>
-                            <div>{item.date}</div>
-                        </Link>
-                    </Item>
-                ))}
-                <Pagination>
-                    <PageButton onClick={handlePrevPage} disabled={currentPage === 1}>
-                        이전
-                    </PageButton>
-                    <span>{currentPage} / {totalPages}</span>
-                    <PageButton onClick={handleNextPage} disabled={currentPage === totalPages}>
-                        다음
-                    </PageButton>
-                </Pagination>
-            </Content>
+                <Sidebar>
+                    <Title>마이페이지</Title>
+                    <RecordText to="/mypage">나의 기록</RecordText>
+                </Sidebar>
+                <Content>
+                    {currentItems.map((item, index) => (
+                        <Item key={item.date}>
+                            <Link to={`/mypage/item/${index}`}>
+                                <div>{index + 1 + indexOfFirstItem}. 제목: {item.title || "제목 없음"}</div>
+                                <div>{new Date(item.date).toLocaleDateString()}</div>
+                            </Link>
+                        </Item>
+                    ))}
+                    <Pagination>
+                        <PageButton onClick={handlePrevPage} disabled={currentPage === 1}>
+                            이전
+                        </PageButton>
+                        <span>{currentPage} / {totalPages}</span>
+                        <PageButton onClick={handleNextPage} disabled={currentPage === totalPages}>
+                            다음
+                        </PageButton>
+                    </Pagination>
+                </Content>
             </div>
         </Main>
     );

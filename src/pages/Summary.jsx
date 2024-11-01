@@ -239,10 +239,8 @@ const Main = styled.div`
     }
     }
 `
-export function SummaryComponent({ translation, summary, audioUrl }) {
 
-    console.log(audioUrl)
-    
+export function SummaryComponent({ translation, summary, audioUrl }) {
     const handleAudioPlay = () => {
         audioUrl.play().catch((error) => {
             console.error("오디오 재생 중 오류 발생:", error);
@@ -257,131 +255,114 @@ export function SummaryComponent({ translation, summary, audioUrl }) {
                      {translation}
                 </div>
             </div>
-            {/* <div id="sum-output_summarybox">
-                <div className="sum-titlebar">요약본</div>
-                <div id="sum-summary">
-                     {summary}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+                <div id="sum-audiobox" onClick={handleAudioPlay}>
+                    <div id="sum-audiocolor">
+                        <img id="sum-img" src={audioImg} alt="audio_icon"></img>
+                    </div>
+                    <div id="sum-audiotext">음성 듣기</div>
                 </div>
-            </div> */}
-            <div style={{display: "flex", justifyContent: "center"}}>
-            <div id="sum-audiobox" onClick={handleAudioPlay}>
-                <div id="sum-audiocolor">
-                    <img id="sum-img" src={audioImg} alt="audio_icon"></img>
-                </div>
-                <div id="sum-audiotext">음성 듣기</div>
-            </div>
             </div>
             <div id="sum-footbar"></div>
         </div>
     );
 }
-  
-  export default function Summary(){
+
+export default function Summary() {
     const [showSummaryComponent, setShowSummaryComponent] = useState(false);
     const [showSaveComponent, setShowSaveComponent] = useState(false);
     const [title, setTitle] = useState("");
-    const [inputText, setInputText] = useState("");  // sample의 변경 사항
     const [selectedFile, setSelectedFile] = useState(null);
-    const [summaryData, setSummaryData] = useState({ translation: "", summary: "", audio: "" });
-    const [ isSummary, setIsSummary ] = useState(false);
-    const [ isSpeech, setIsSpeech ] = useState(false);
-    const [ fromLang, setFromLang ] = useState("0");
-    const [ toLang, setToLang ] = useState("0");
+    const [summaryData, setSummaryData] = useState({ translation: "", summary: "", audio: "", text: "" });
+    const [isSummary, setIsSummary] = useState(false);
+    const [isSpeech, setIsSpeech] = useState(false);
+    const [fromLang, setFromLang] = useState("0");
+    const [toLang, setToLang] = useState("0");
 
-
-    //api 서버 url
     const API_URL = process.env.REACT_APP_API_URL;
-    console.log("API URL:", API_URL);  // API URL 출력
+    console.log("API URL:", API_URL);
 
-    // 파일 업로드 핸들러
     const handleFileUpload = (event) => {
-        if (!event || !event.target || !event.target.files || event.target.files.length === 0) {
+        const file = event.target?.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+        } else {
             console.error("No file selected or event target is undefined");
-            return;
         }
-    
-        const file = event.target.files[0];
-        setSelectedFile(file); // 파일을 상태에 저장
     };
 
-    const handleTextInput = (event) => {
-        const inputText = event.target.value;
-        setSummaryData((prevData) => ({ ...prevData, text: inputText }));
-        setSelectedFile(null); // 텍스트 입력 시 파일 초기화
+    const handleTextChange = (event) => {
+        const text = event.target.value;
+        setSummaryData((prevData) => ({ ...prevData, text }));
+        setSelectedFile(null);
     };
 
     const handleSubmit = async () => {
         try {
             const hasText = summaryData.text && summaryData.text.trim() !== "";
             const hasFile = !!selectedFile;
-    
             let response;
-    
+
             if (hasFile) {
                 const formData = new FormData();
                 formData.append("file", selectedFile);
-    
-                response = await fetch(`http://127.0.0.1:8000/images?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
+
+                response = await fetch(`${API_URL}/images?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
                     body: formData,
                 });
             } else if (hasText) {
-                response = await fetch(`http://127.0.0.1:8000/text?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
+                response = await fetch(`${API_URL}/text?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: summaryData.text }),
                 });
             } else {
                 console.error("No text or file provided.");
                 return;
             }
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-        const data = await response.json();
-        const audioBase64 = data.result[0];  // main 브랜치의 변경 사항 유지
-        const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
-        const audioElement = new Audio(audioSrc);
-  
-    
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const data = await response.json();
+            const audioSrc = `data:audio/mpeg;base64,${data.result[0]}`;
+            const audioElement = new Audio(audioSrc);
+
             setSummaryData({
                 translation: data.result[1],
                 summary: data.result[1],
                 audio: audioElement,
             });
-    
+
             setShowSummaryComponent(true);
             setShowSaveComponent(true);
-    
+
         } catch (error) {
             console.error("Request failed:", error);
         }
     };
 
     const handleSave = () => {
-        localStorage.setItem(`summary_${title}`, JSON.stringify(summaryData));
+        const savedSummaries = JSON.parse(localStorage.getItem('savedSummaries')) || [];
+        const newEntry = { title, ...summaryData, date: new Date().toISOString() };
+        localStorage.setItem('savedSummaries', JSON.stringify([...savedSummaries, newEntry]));
         alert('저장되었습니다.');
-        setShowSaveComponent(false); // 저장 후 입력창 숨기기
-        setTitle(""); // 제목 초기화
+        setShowSaveComponent(false);
+        setTitle("");
     };
 
-    return(
+    return (
         <Main>
-             <div id="sum-container">
+            <div id="sum-container">
                 <div id="sum-sidebox">
                     <div id="sum-menu">
                         <div className="sum-titlebar">메뉴</div>
-                         {/* 파일 첨부 버튼 (label과 input으로 구성) */}
                         <label id="sum-upload">
                             <input type="file" style={{ display: "none" }} onChange={handleFileUpload} />
                             <img src={upload} style={{ width: "40px", height: "40px" }} alt="upload_icon" />
                             파일 첨부하기
                         </label>
-                         <div className="sum-bar"></div>
+                        <div className="sum-bar"></div>
                         <div id="sum-optionbox">
                             <div id="sum-langbox">
                                 <select id="sum-fromlang" value={fromLang} onChange={(e) => setFromLang(e.target.value)}>
@@ -391,7 +372,7 @@ export function SummaryComponent({ translation, summary, audioUrl }) {
                                     <option value="3">스페인어</option>
                                     <option value="4">영어</option>
                                 </select>
-                                <img src={right} alt="right_icon"></img>
+                                <img src={right} alt="right_icon" />
                                 <select id="sum-tolang" value={toLang} onChange={(e) => setToLang(e.target.value)}>
                                     <option value="0">한국어</option>
                                     <option value="1">중국어</option>
@@ -402,11 +383,11 @@ export function SummaryComponent({ translation, summary, audioUrl }) {
                             </div>
                             <div className="sum-options">
                                 <label htmlFor="summary_button">요약</label>
-                                <input type="checkbox" id="summary_button" checked={isSummary} onChange={(e) => setIsSummary(e.target.checked)}/>
+                                <input type="checkbox" id="summary_button" checked={isSummary} onChange={(e) => setIsSummary(e.target.checked)} />
                             </div>
                             <div className="sum-options">
                                 <label htmlFor="audio_button">음성</label>
-                                <input type="checkbox" id="audio_button" checked={isSpeech} onChange={(e) => setIsSpeech(e.target.checked)}/>
+                                <input type="checkbox" id="audio_button" checked={isSpeech} onChange={(e) => setIsSpeech(e.target.checked)} />
                             </div>
                         </div>
                         <div className="sum-bar"></div>
@@ -416,32 +397,49 @@ export function SummaryComponent({ translation, summary, audioUrl }) {
                     </div>
                 </div>
                 <div>
-                {showSummaryComponent ? (
-                        <SummaryComponent translation={summaryData.translation} summary={summaryData.summary} audioUrl={summaryData.audio} />
+                    {showSummaryComponent ? (
+                        <SummaryComponent 
+                            translation={summaryData.translation} 
+                            summary={summaryData.summary} 
+                            audioUrl={summaryData.audio} 
+                        />
                     ) : (
                         <div className="sum-contentbox">
                             <div id="sum-input_contentbox">
-                                <textarea id="sum-textarea" placeholder="텍스트를 입력하세요" value={summaryData.text} onChange={handleTextInput} style={{ width: "100%", height: "580px", resize: "none", outline: "none", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2" }} />
-                                <div style={{display: "flex", gap: "8px", alignItems: "center"}}>또는<label id="sum-s_upload"><input type="file" style={{ display: "none" }} onChange={handleFileUpload} />파일 첨부</label></div>
+                                <textarea 
+                                    id="sum-textarea" 
+                                    placeholder="텍스트를 입력하세요" 
+                                    value={summaryData.text} 
+                                    onChange={handleTextChange} 
+                                    style={{ width: "100%", height: "580px", resize: "none", outline: "none", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2" }}
+                                />
                             </div>
                         </div>
                     )}
-
-                {showSaveComponent && (
-                    <div id="save-component" style={{ marginTop: "20px", textAlign: "center", display: "flex", justifyContent: "flex-end"}}>
-                        <div id="sum-savelog">
-                            <div>로그 기록 :</div>
-                            <div style={{display: "flex"}}>
-                                <input type="text" placeholder="제목을 입력하세요" value={title} onChange={(e) => setTitle(e.target.value)} style={{ padding: "8px", fontSize: "16px", width: "200px", marginRight: "10px" }}/>
-                                <button onClick={handleSave} style={{padding: "8px 16px", backgroundColor: "#690D9C", color: "#FFFFFF", fontSize: "16px", borderRadius: "4px", cursor: "pointer", fontFamily: "TheJamsil3Regular"}}>
-                                    저장
-                                </button>
+                    {showSaveComponent && (
+                        <div id="save-component" style={{ marginTop: "20px", textAlign: "center", display: "flex", justifyContent: "flex-end" }}>
+                            <div id="sum-savelog">
+                                <div>로그 기록 :</div>
+                                <div style={{ display: "flex" }}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="제목을 입력하세요" 
+                                        value={title} 
+                                        onChange={(e) => setTitle(e.target.value)} 
+                                        style={{ padding: "8px", fontSize: "16px", width: "200px", marginRight: "10px" }}
+                                    />
+                                    <button 
+                                        onClick={handleSave} 
+                                        style={{ padding: "8px 16px", backgroundColor: "#690D9C", color: "#FFFFFF", fontSize: "16px", borderRadius: "4px", cursor: "pointer", fontFamily: "TheJamsil3Regular" }}
+                                    >
+                                        저장
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
                 </div>
-             </div>
+            </div>
         </Main>
-    )
+    );
 }
