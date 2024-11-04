@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import upload from '../assets/img/summary/upload.png'
 import audioImg from '../assets/img/summary/audio.png'
 import right from '../assets/img/summary/right.png'
+import check from '../assets/img/summary/check.png'
+import { Loading } from '../components/Loading'
 
 const sparkleAnimation = keyframes`
     0% {
@@ -111,7 +113,7 @@ const Main = styled.div`
         background-color: #151C36;
         border: 1px solid transparent;
         border-image: linear-gradient(135deg, #5E17EB 0%, #720455 75%, #910A67 100%) 1;
-        border-radius: 0 0 8px 8px;
+        border-radius: 0 0 16px 16px;
         color: #FFFFFF;
         display: flex;
         flex-direction: column;
@@ -123,14 +125,14 @@ const Main = styled.div`
         width: 866px;
         min-height: 660px;
         background-color: #151C36;
-        border-radius: 0 0 8px 8px;
+        border-radius: 0 0 16px 16px;
         color: #FFFFFF;
     }
     #sum-output_summarybox{
         width: 866px;
         min-height: 280px;
         background-color: #151C36;
-        border-radius: 0 0 8px 8px;
+        border-radius: 0 0 16px 16px;
         color: #FFFFFF;
     }
 
@@ -147,6 +149,10 @@ const Main = styled.div`
         padding: 8px;
         line-height: 1.2;
     }
+    #sum-summary{
+        padding: 8px;
+        line-height: 1.2;
+    }
     .sum-bar{
         width: 262px;
         height: 1px;
@@ -155,8 +161,12 @@ const Main = styled.div`
     }
 
     #sum-optionbox{
+        width: 200px;
+        height: 120px;
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
         gap: 16px;
     }
     .sum-options{
@@ -176,6 +186,7 @@ const Main = styled.div`
         border: 2px solid transparent;
         animation: ${sparkleAnimation} 1.5s infinite; /* 애니메이션 적용 */
         cursor: pointer;
+        border-radius: 50px;
     }
     #sum-audiocolor{
         width: 30px;
@@ -240,7 +251,7 @@ const Main = styled.div`
     }
 `
 
-export function SummaryComponent({ translation, summary, audioUrl }) {
+export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isSummary }) {
     const handleAudioPlay = () => {
         audioUrl.play().catch((error) => {
             console.error("오디오 재생 중 오류 발생:", error);
@@ -255,6 +266,15 @@ export function SummaryComponent({ translation, summary, audioUrl }) {
                      {translation}
                 </div>
             </div>
+            {summary && (
+            <div id="sum-output_summarybox">
+                <div className="sum-titlebar">요약본</div>
+                <div id="sum-summary">
+                    {summary}
+                </div>
+            </div>
+            )}
+            {isSpeech && (
             <div style={{ display: "flex", justifyContent: "center" }}>
                 <div id="sum-audiobox" onClick={handleAudioPlay}>
                     <div id="sum-audiocolor">
@@ -263,12 +283,14 @@ export function SummaryComponent({ translation, summary, audioUrl }) {
                     <div id="sum-audiotext">음성 듣기</div>
                 </div>
             </div>
+            )}
             <div id="sum-footbar"></div>
         </div>
     );
 }
-
-export default function Summary() {
+  
+  export default function Summary(){
+    const [isLoading, setIsLoading] = useState(false);
     const [showSummaryComponent, setShowSummaryComponent] = useState(false);
     const [showSaveComponent, setShowSaveComponent] = useState(false);
     const [title, setTitle] = useState("");
@@ -279,8 +301,12 @@ export default function Summary() {
     const [fromLang, setFromLang] = useState("0");
     const [toLang, setToLang] = useState("0");
 
+
+    //api 서버 url
     const API_URL = process.env.REACT_APP_API_URL;
     console.log("API URL:", API_URL);
+    const PORT = process.env.REACT_APP_BACKEND_PORT;
+    console.log("PORT:", PORT)
 
     const handleFileUpload = (event) => {
         const file = event.target?.files?.[0];
@@ -291,6 +317,28 @@ export default function Summary() {
         }
     };
 
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.style.backgroundColor = "#F0F0F0";
+    };
+
+    const handleDragLeave = (e) => {
+        e.currentTarget.style.backgroundColor = "#FFFFFF";
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.style.backgroundColor = "#FFFFFF";
+
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            setSelectedFile(file);
+            console.log("파일이 업로드되었습니다:", file.name);
+        }
+    };
+
     const handleTextChange = (event) => {
         const text = event.target.value;
         setSummaryData((prevData) => ({ ...prevData, text }));
@@ -298,6 +346,8 @@ export default function Summary() {
     };
 
     const handleSubmit = async () => {
+        setIsLoading(true); // 로딩 시작
+
         try {
             const hasText = summaryData.text && summaryData.text.trim() !== "";
             const hasFile = !!selectedFile;
@@ -306,13 +356,13 @@ export default function Summary() {
             if (hasFile) {
                 const formData = new FormData();
                 formData.append("file", selectedFile);
-
-                response = await fetch(`${API_URL}/images?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
+    
+                response = await fetch(`${API_URL}:${PORT}/images?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
                     body: formData,
                 });
             } else if (hasText) {
-                response = await fetch(`${API_URL}/text?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
+                response = await fetch(`${API_URL}:${PORT}/text?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: summaryData.text }),
@@ -321,24 +371,56 @@ export default function Summary() {
                 console.error("No text or file provided.");
                 return;
             }
-
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
             const data = await response.json();
-            const audioSrc = `data:audio/mpeg;base64,${data.result[0]}`;
-            const audioElement = new Audio(audioSrc);
+            
+            // let audioBase64 = null;
+            // let audioSrc = null;
+            // let audioElement = null;
 
             setSummaryData({
-                translation: data.result[1],
-                summary: data.result[1],
-                audio: audioElement,
-            });
+                translation: data.result[1]
+            })
+
+            if (isSpeech){
+                let audioBase64 = data.result[0]
+                let audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
+                let audioElement = new Audio(audioSrc);
+                setSummaryData({
+                    translation: data.result[1],
+                    audio: audioElement
+                })
+            } else if (isSummary){
+                setSummaryData({
+                    translation: data.result[1],
+                    summary: data.result[0],
+                });
+            }
+
+            // const audioBase64 = data.result[0];  // main 브랜치의 변경 사항 유지
+            // const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
+            // const audioElement = new Audio(audioSrc);
+
+            console.log(data)
+  
+    
+            // setSummaryData({
+            //     translation: data.result[1],
+            //     summary: data.result[0],
+            //     audio: audioElement,
+            // });
 
             setShowSummaryComponent(true);
             setShowSaveComponent(true);
 
         } catch (error) {
             console.error("Request failed:", error);
+        } finally {
+            setIsLoading(false); // 로딩 종료
         }
     };
 
@@ -359,9 +441,9 @@ export default function Summary() {
                         <div className="sum-titlebar">메뉴</div>
                         <label id="sum-upload">
                             <input type="file" style={{ display: "none" }} onChange={handleFileUpload} />
-                            <img src={upload} style={{ width: "40px", height: "40px" }} alt="upload_icon" />
-                            파일 첨부하기
+                            {selectedFile ? <div style={{ display: "flex", alignItems: "center", gap: "8px" }}><img src={check} style={{ width: "40px", height: "40px" }} alt="upload_icon"/>첨부완료</div> : <div style={{ display: "flex", alignItems: "center", gap: "8px" }}><img src={upload} style={{ width: "40px", height: "40px" }} alt="upload_icon"/>파일 첨부하기</div>}
                         </label>
+                        {selectedFile && <div style={{ color: "white", fontSize: "14px", marginTop: "8px" }}>{selectedFile.name}</div>}
                         <div className="sum-bar"></div>
                         <div id="sum-optionbox">
                             <div id="sum-langbox">
@@ -381,13 +463,15 @@ export default function Summary() {
                                     <option value="4">영어</option>
                                 </select>
                             </div>
-                            <div className="sum-options">
-                                <label htmlFor="summary_button">요약</label>
-                                <input type="checkbox" id="summary_button" checked={isSummary} onChange={(e) => setIsSummary(e.target.checked)} />
-                            </div>
-                            <div className="sum-options">
-                                <label htmlFor="audio_button">음성</label>
-                                <input type="checkbox" id="audio_button" checked={isSpeech} onChange={(e) => setIsSpeech(e.target.checked)} />
+                            <div style={{width: "200px", height:"80", display: "flex", gap: "8px", flexDirection: "column"}}>
+                                <div className="sum-options">
+                                    <label htmlFor="summary_button">· 요약</label>
+                                    <input type="checkbox" id="summary_button" checked={isSummary} onChange={(e) => setIsSummary(e.target.checked)} />
+                                </div>
+                                <div className="sum-options">
+                                    <label htmlFor="audio_button">· 음성</label>
+                                    <input type="checkbox" id="audio_button" checked={isSpeech} onChange={(e) => setIsSpeech(e.target.checked)} />
+                                </div>
                             </div>
                         </div>
                         <div className="sum-bar"></div>
@@ -398,21 +482,12 @@ export default function Summary() {
                 </div>
                 <div>
                     {showSummaryComponent ? (
-                        <SummaryComponent 
-                            translation={summaryData.translation} 
-                            summary={summaryData.summary} 
-                            audioUrl={summaryData.audio} 
-                        />
+                        <SummaryComponent translation={summaryData.translation} summary={summaryData.summary} audioUrl={summaryData.audio} isSpeech={isSpeech} isSummary={isSummary}/>
                     ) : (
                         <div className="sum-contentbox">
                             <div id="sum-input_contentbox">
-                                <textarea 
-                                    id="sum-textarea" 
-                                    placeholder="텍스트를 입력하세요" 
-                                    value={summaryData.text} 
-                                    onChange={handleTextChange} 
-                                    style={{ width: "100%", height: "580px", resize: "none", outline: "none", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2" }}
-                                />
+                                {selectedFile ? <div style={{ width: "100%", height: "580px", display: "flex", justifyContent: "center", alignItems: "center", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2", fontSize: "24px" }}>{selectedFile.name} 첨부완료</div> : <textarea id="sum-textarea" placeholder="텍스트를 입력하세요" value={summaryData.text} onChange={handleTextChange} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} style={{ width: "100%", height: "580px", resize: "none", outline: "none", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2" }} />}         
+                                 <div style={{display: "flex", gap: "8px", alignItems: "center"}}>또는<label id="sum-s_upload"><input type="file" style={{ display: "none" }} onChange={handleFileUpload} />파일 첨부</label></div>
                             </div>
                         </div>
                     )}
@@ -439,6 +514,7 @@ export default function Summary() {
                         </div>
                     )}
                 </div>
+                {isLoading && <Loading />}
             </div>
         </Main>
     );
