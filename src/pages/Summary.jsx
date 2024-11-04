@@ -382,24 +382,15 @@ export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isS
             // let audioSrc = null;
             // let audioElement = null;
 
-            setSummaryData({
-                translation: data.result[1]
-            })
+            let audioBase64 = data.result[0]
+            let audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
+            let audioElement = new Audio(audioSrc);
 
-            if (isSpeech){
-                let audioBase64 = data.result[0]
-                let audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
-                let audioElement = new Audio(audioSrc);
-                setSummaryData({
-                    translation: data.result[1],
-                    audio: audioElement
-                })
-            } else if (isSummary){
-                setSummaryData({
-                    translation: data.result[1],
-                    summary: data.result[0],
-                });
-            }
+            setSummaryData({
+                audio: audioElement,
+                summary: data.result[1],
+                translation: data.result[2]
+            })
 
             // const audioBase64 = data.result[0];  // main 브랜치의 변경 사항 유지
             // const audioSrc = `data:audio/mpeg;base64,${audioBase64}`;
