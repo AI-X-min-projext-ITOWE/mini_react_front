@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import loadingGif from '../assets/img/summary/loadingGif.gif';
 
 const ModalBackground = styled.div`
     position: fixed;
@@ -19,11 +20,19 @@ const ModalContent = styled.div`
     height: 120px;
     background: #690D9C;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 8px;
     color: #FFFFFF;
+
+    #loading_text{
+        width: 200px;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
 `;
 
 export function Loading() {
@@ -49,8 +58,11 @@ export function Loading() {
     return (
         <ModalBackground>
             <ModalContent>
-                <p>작업 진행 중 입니다.</p>
-                <p>{loadingText}</p>
+                <img src={loadingGif} alt="loading_gif" style={{width: "64px", height: "64px", borderRadius: "999px"}}/>
+                <div id="loading_text">
+                    <p>작업 진행 중 입니다.</p>
+                    <p>{loadingText}</p>
+                </div>
             </ModalContent>
         </ModalBackground>
     );

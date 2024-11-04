@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import upload from '../assets/img/summary/upload.png'
 import audioImg from '../assets/img/summary/audio.png'
 import right from '../assets/img/summary/right.png'
+import check from '../assets/img/summary/check.png'
 import { Loading } from '../components/Loading'
 
 const sparkleAnimation = keyframes`
@@ -160,8 +161,12 @@ const Main = styled.div`
     }
 
     #sum-optionbox{
+        width: 200px;
+        height: 120px;
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
         gap: 16px;
     }
     .sum-options{
@@ -261,13 +266,14 @@ export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isS
                      {translation}
                 </div>
             </div>
+            {summary && (
             <div id="sum-output_summarybox">
                 <div className="sum-titlebar">요약본</div>
                 <div id="sum-summary">
                     {summary}
                 </div>
             </div>
-
+            )}
             {isSpeech && (
             <div style={{ display: "flex", justifyContent: "center" }}>
                 <div id="sum-audiobox" onClick={handleAudioPlay}>
@@ -308,6 +314,28 @@ export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isS
             setSelectedFile(file);
         } else {
             console.error("No file selected or event target is undefined");
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.style.backgroundColor = "#F0F0F0";
+    };
+
+    const handleDragLeave = (e) => {
+        e.currentTarget.style.backgroundColor = "#FFFFFF";
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.style.backgroundColor = "#FFFFFF";
+
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            setSelectedFile(file);
+            console.log("파일이 업로드되었습니다:", file.name);
         }
     };
 
@@ -413,9 +441,9 @@ export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isS
                         <div className="sum-titlebar">메뉴</div>
                         <label id="sum-upload">
                             <input type="file" style={{ display: "none" }} onChange={handleFileUpload} />
-                            <img src={upload} style={{ width: "40px", height: "40px" }} alt="upload_icon" />
-                            파일 첨부하기
+                            {selectedFile ? <div style={{ display: "flex", alignItems: "center", gap: "8px" }}><img src={check} style={{ width: "40px", height: "40px" }} alt="upload_icon"/>첨부완료</div> : <div style={{ display: "flex", alignItems: "center", gap: "8px" }}><img src={upload} style={{ width: "40px", height: "40px" }} alt="upload_icon"/>파일 첨부하기</div>}
                         </label>
+                        {selectedFile && <div style={{ color: "white", fontSize: "14px", marginTop: "8px" }}>{selectedFile.name}</div>}
                         <div className="sum-bar"></div>
                         <div id="sum-optionbox">
                             <div id="sum-langbox">
@@ -435,13 +463,15 @@ export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isS
                                     <option value="4">영어</option>
                                 </select>
                             </div>
-                            <div className="sum-options">
-                                <label htmlFor="summary_button">요약</label>
-                                <input type="checkbox" id="summary_button" checked={isSummary} onChange={(e) => setIsSummary(e.target.checked)} />
-                            </div>
-                            <div className="sum-options">
-                                <label htmlFor="audio_button">음성</label>
-                                <input type="checkbox" id="audio_button" checked={isSpeech} onChange={(e) => setIsSpeech(e.target.checked)} />
+                            <div style={{width: "200px", height:"80", display: "flex", gap: "8px", flexDirection: "column"}}>
+                                <div className="sum-options">
+                                    <label htmlFor="summary_button">· 요약</label>
+                                    <input type="checkbox" id="summary_button" checked={isSummary} onChange={(e) => setIsSummary(e.target.checked)} />
+                                </div>
+                                <div className="sum-options">
+                                    <label htmlFor="audio_button">· 음성</label>
+                                    <input type="checkbox" id="audio_button" checked={isSpeech} onChange={(e) => setIsSpeech(e.target.checked)} />
+                                </div>
                             </div>
                         </div>
                         <div className="sum-bar"></div>
@@ -456,7 +486,7 @@ export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isS
                     ) : (
                         <div className="sum-contentbox">
                             <div id="sum-input_contentbox">
-                                <textarea id="sum-textarea" placeholder="텍스트를 입력하세요" value={summaryData.text} onChange={handleTextChange} style={{ width: "100%", height: "580px", resize: "none", outline: "none", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2" }} />
+                                {selectedFile ? <div style={{ width: "100%", height: "580px", display: "flex", justifyContent: "center", alignItems: "center", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2", fontSize: "24px" }}>{selectedFile.name} 첨부완료</div> : <textarea id="sum-textarea" placeholder="텍스트를 입력하세요" value={summaryData.text} onChange={handleTextChange} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} style={{ width: "100%", height: "580px", resize: "none", outline: "none", border: "none", backgroundColor: "#151C36", color: "#FFFFFF", padding: "8px", fontSize: "16px", fontFamily: "TheJamsil3Regular", lineHeight: "1.2" }} />}         
                                  <div style={{display: "flex", gap: "8px", alignItems: "center"}}>또는<label id="sum-s_upload"><input type="file" style={{ display: "none" }} onChange={handleFileUpload} />파일 첨부</label></div>
                             </div>
                         </div>
