@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
+import { FaTrash } from 'react-icons/fa';
 
 const Main = styled.div`
     width: 100%;
@@ -89,6 +90,21 @@ const Item = styled.div`
     }
 `;
 
+const DeleteButton = styled.button`
+    background: none;
+    border: none;
+    color: #a9b3d1;
+    cursor: pointer;
+    padding: 0 10px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        color: #ff4d4d;
+    }
+`;
+
 const Pagination = styled.div`
     display: flex;
     justify-content: center;
@@ -136,6 +152,12 @@ export default function MyPage() {
         if (currentPage > 1) setCurrentPage(currentPage - 1);
     };
 
+    const handleDelete = (index) => {
+        const updatedItems = items.filter((_, itemIndex) => itemIndex !== indexOfFirstItem + index);
+        setItems(updatedItems);
+        localStorage.setItem('savedSummaries', JSON.stringify(updatedItems));
+    };
+
     return (
         <Main>
             <div id="myp-container">
@@ -145,12 +167,18 @@ export default function MyPage() {
                 </Sidebar>
                 <Content>
                     {currentItems.map((item, index) => (
-                        <Item key={item.date}>
-                            <Link to={`/mypage/item/${index}`}>
-                                <div>{index + 1 + indexOfFirstItem}. {item.title || "제목 없음"}</div>
-                                <div>{new Date(item.date).toLocaleDateString()}</div>
-                            </Link>
-                        </Item>
+                      <Item key={item.date}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                          <Link to={`/mypage/item/${index}`} style={{ display: 'flex', justifyContent: 'space-between', width: '90%' }}>
+                              <div>{index + 1 + indexOfFirstItem}. 제목: {item.title || "제목 없음"}</div>
+                              <div>{new Date(item.date).toLocaleDateString()}</div>
+                          </Link>
+                          <DeleteButton onClick={() => handleDelete(index)}>
+                              <FaTrash />
+                          </DeleteButton>
+                      </div>
+                     </Item>
+                  
                     ))}
                     <Pagination>
                         <PageButton onClick={handlePrevPage} disabled={currentPage === 1}>
