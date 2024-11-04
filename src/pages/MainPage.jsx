@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import MainContent from '../components/MainContent';
 import work from '../assets/img/main/work1.JPG';
-import trans from '../assets/img/main/trans2.JPG';
 import summary from '../assets/img/main/summary3.JPG';
 
 import { Link } from "react-router-dom";
@@ -12,7 +11,7 @@ import '../index.css';
 // Main 스타일 정의
 const Main = styled.div`
     width: 100%;
-    height: 1200px;
+    height: 100%;
     min-height: 100vh;
     background-color: #0f1429;
     display: flex;
@@ -21,14 +20,18 @@ const Main = styled.div`
 
     #mp-container{
         width: 1168px;
-        height: 600px;
+        min-height: ${({ isContentVisible }) => (isContentVisible ? 'auto' : '100vh')}; /* 초기 높이 유지 */
         display: flex;
         flex-direction: column;
         align-self: center;
         justify-content: center;
         margin-top: 220px;
+        padding-bottom: 50px;
+        transition: min-height 0.5s ease;
     }
 `;
+
+
 
 const MainText = styled.div`
     font-family: 'TheJamsil3Regular', sans-serif;
@@ -78,30 +81,26 @@ const ScrollIndicator = styled.div`
 `;
 
 export default function MainPage() {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isContentVisible, setIsContentVisible] = useState(false);
     const [showIndicator, setShowIndicator] = useState(true); // 스크롤 유도 표시 상태
-    const mainContentRef = useRef(null);
 
     useEffect(() => {
         const handleScroll = () => {
             const scrollPosition = window.scrollY;
     
-            if (scrollPosition > 50 && !isVisible) {
-                setIsVisible(true);
+            if (scrollPosition > 50 && !isContentVisible[0] ) {
+                setIsContentVisible(true);
                 setShowIndicator(false); // 스크롤 시작 시 유도 텍스트 숨기기
-            } else if (scrollPosition <= 50 && isVisible) {
-                setIsVisible(false); // 스크롤이 최상단에 있으면 초기 화면으로 복귀
-                setShowIndicator(true); // 스크롤 유도 표시 다시 보이기
-            }
+            } 
         };
 
         window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-    }, [isVisible]);
+    }, [isContentVisible]);
 
     return (
         <Main>
-            <div id="mp-container">  
+            <div id="mp-container" isContentVisible={isContentVisible}>  
                 <div className="logo tracking-in-contract-bck">
                     <BrififyLogo width="400" height="auto" />
                 </div>
@@ -121,8 +120,8 @@ export default function MainPage() {
 
                 <br /><br /><br />
 
-                <div ref={mainContentRef} style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 1s ease-in-out' }}>
-                    {isVisible && (
+                <div style={{ opacity: isContentVisible ? 1 : 0, transition: 'opacity 1s ease-in-out' }}>
+                    {isContentVisible && (
                         <MainContent
                             image={work}
                             title="업무 생산성 향상을 위한 통합 솔루션"
@@ -131,8 +130,8 @@ export default function MainPage() {
                     )}
                 </div>
 
-                <div ref={mainContentRef} style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 1s ease-in-out' }}>
-                    {isVisible && (
+                <div style={{ opacity: isContentVisible ? 1 : 0, transition: 'opacity 1s ease-in-out' }}>
+                    { isContentVisible && (
                         <MainContent
                             image={summary}
                             title="방대한 자료 속 핵심만 빠르게 요약"
@@ -140,16 +139,7 @@ export default function MainPage() {
                         />
                     )}
                 </div>
-
-                <div ref={mainContentRef} style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 1s ease-in-out' }}>
-                    {isVisible && (
-                        <MainContent
-                            image={trans}
-                            title="글로벌 자료에 대한 언어 장벽 해소"
-                            text="전 세계의 다양한 언어로 작성된 문서를 AI가 자동으로 번역해드립니다. 주요 내용과 핵심 정보에만 집중할 수 있도록, 다국어 번역 지원을 통해 더욱 빠르게 글로벌 자료에 접근해보세요."
-                        />
-                    )}
-                </div>
+        
                 
                 {showIndicator && <ScrollIndicator>⬇ 스크롤을 하세요 ⬇</ScrollIndicator>}
             </div>
