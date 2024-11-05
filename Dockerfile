@@ -12,8 +12,8 @@ RUN npm run build
 # 4. Nginx로 제공하기 위한 단계
 FROM nginx:alpine
 
-# 5. Nginx 설정 파일 덮어쓰기 (필요한 경우에만 사용)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# 5. Nginx 설정 파일 덮어쓰기 (conf.d/default.conf에 파일 복사)
+COPY conf/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
 # 6. 빌드된 파일을 Nginx 기본 제공 폴더로 복사
 COPY --from=build /app/build /usr/share/nginx/html
