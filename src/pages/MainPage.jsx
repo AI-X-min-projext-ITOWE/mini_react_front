@@ -101,9 +101,9 @@ export default function MainPage() {
 
     return (
         <Main>
-            <div id="mp-container" isContentVisible={isContentVisible}>  
+            <div id="mp-container" style={{ minHeight: isContentVisible ? 'auto' : '100vh' }}>  {/* Inline style로 minHeight 설정 */} 
                 <div className="logo tracking-in-contract-bck">
-                    <BrififyLogo width="400" height="auto" />
+                    <BrififyLogo width="400" height="100%" />
                 </div>
                 <br />
                 <br />
