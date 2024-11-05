@@ -11,6 +11,7 @@ import '../index.css';
 // Main 스타일 정의
 const Main = styled.div`
     width: 100%;
+    min-width: 1600px;
     height: 100%;
     min-height: 100vh;
     background-color: #0f1429;
