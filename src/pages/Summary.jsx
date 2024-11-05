@@ -359,11 +359,13 @@ export function SummaryComponent({ translation, summary, audioUrl, isSpeech, isS
     
                 response = await fetch(`${API_URL}:${PORT}/images?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
+                    mode : "cors",
                     body: formData,
                 });
             } else if (hasText) {
                 response = await fetch(`${API_URL}:${PORT}/text?from_lang=${fromLang}&to_lang=${toLang}&is_summary=${isSummary}&is_speech=${isSpeech}`, {
                     method: "POST",
+                    mode : "cors",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: summaryData.text }),
                 });
